@@ -14,7 +14,6 @@ import web.entity.User;
 import web.service.RoleService;
 import web.service.UserService;
 
-import java.util.HashSet;
 import java.util.List;
 
 @Controller
@@ -48,35 +47,17 @@ public class AdminController {
     @GetMapping("/new")
     public String createUserForm(Model model) {
         model.addAttribute("user", new User());
-        List<Role> roles = roleService.getAllRoles();
-        System.out.println("Available roles: " + roles); // Логируем доступные роли
-        model.addAttribute("roles", roles);
         return "new";
     }
 
     @PostMapping("/new")
     public String addUser(@ModelAttribute("user") @Valid User user,
-                          @RequestParam(value = "roles", required = false) List<Long> roleIds,
-                          BindingResult bindingResult, RedirectAttributes redirectAttributes, Model model) {
-        // Проверка на наличие ошибок валидации
+                          BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
-            List<Role> roles = roleService.getAllRoles(); // Получаем все роли
-            model.addAttribute("roles", roles); // Передаем роли в модель
-            return "new"; // Возвращаемся к форме создания
+            return "new";
         }
-
-        // Проверяем, были ли выбраны роли
-        if (roleIds != null && !roleIds.isEmpty()) {
-            List<Role> roles = roleService.findRolesByIds(roleIds); // Получаем роли по ID
-            System.out.println("Roles retrieved: " + roles); // Логируем полученные роли
-            user.setRoles(new HashSet<>(roles)); // Устанавливаем роли для пользователя
-        } else {
-            System.out.println("No role IDs received."); // Логируем, если ID не получены
-        }
-
-        userService.saveUser(user, roleIds); // Сохраняем пользователя с передачей roleIds
-        redirectAttributes.addFlashAttribute("message", "Пользователь успешно создан!"); // Сообщение об успешном создании
-        return "redirect:/admin"; // Перенаправление на страницу администрирования
+        userService.saveUser(user);
+        return "redirect:/admin";
     }
 
     @PostMapping("/delete")

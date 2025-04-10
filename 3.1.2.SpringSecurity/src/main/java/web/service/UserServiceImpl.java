@@ -43,11 +43,7 @@ public class UserServiceImpl  implements UserService {
 
     @Transactional
     @Override
-    public void saveUser(User user, List<Long> roleIds) {
-        if (roleIds != null && !roleIds.isEmpty()) {
-            List<Role> roles = roleService.findRolesByIds(roleIds);
-            user.setRoles(new HashSet<>(roles));
-        }
+    public void saveUser(User user) {
         if (user.getPassword() != null && !user.getPassword().isEmpty()) {
             user.setPassword(passwordEncoder.encode(user.getPassword()));
         }
